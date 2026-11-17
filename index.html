@@ -236,7 +236,7 @@ const tk=document.getElementById('ticks');for(let i=0;i<32;i++){const a=i*Math.P
   const switches=[...document.querySelectorAll('.route-switch')];
   let previousFocus=null;
   function selectMap(grade){
-    const file=grade==='7'?'karta.html':'karta6.html';
+    const file=grade==='7'?'karta(3).html':'karta6.html';
     switches.forEach(btn=>btn.setAttribute('aria-pressed',btn.dataset.map===grade?'true':'false'));
     if(frame.getAttribute('src')!==file) frame.src=file;
   }
