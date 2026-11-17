@@ -71,18 +71,21 @@ h1 .ch{display:inline-block;opacity:0;animation:drop .9s cubic-bezier(.3,1.6,.5,
 .compass:hover .label .main{fill-opacity:1}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;opacity:1}}
 
-/* Вікно маршруту: карти відкриваються поверх головної сторінки */
-.route-modal{position:fixed;inset:0;z-index:50;display:none;align-items:center;justify-content:center;padding:clamp(8px,2vw,24px);background:rgba(5,35,48,.78);backdrop-filter:blur(8px)}
-.route-modal.is-open{display:flex}
-.route-panel{width:min(96vw,1700px);height:min(94vh,1050px);display:flex;flex-direction:column;overflow:hidden;border:3px solid rgba(255,238,190,.9);border-radius:24px;background:#f8edcf;box-shadow:0 28px 90px rgba(0,0,0,.48)}
-.route-toolbar{flex:none;display:flex;align-items:center;gap:10px;padding:10px 14px;background:linear-gradient(180deg,#fff4d2,#e9c58a);border-bottom:2px solid #b8874c}
-.route-caption{margin-right:auto;color:#563719;font:900 clamp(15px,2vw,21px) Rubik, sans-serif}
-.route-switch{border:2px solid #805323;border-radius:999px;padding:8px 18px;background:#fff8e8;color:#563719;font:900 15px Nunito,sans-serif;cursor:pointer;box-shadow:0 3px 0 #805323;transition:transform .15s,background .15s,color .15s}
-.route-switch:hover{transform:translateY(-1px)}
-.route-switch[aria-pressed="true"]{background:#155a70;color:#fff;border-color:#0b3b4f;box-shadow:0 3px 0 #0b3b4f}
-.route-close{width:40px;height:40px;flex:none;border:2px solid #805323;border-radius:50%;background:#b84d35;color:white;font:900 23px/1 Nunito,sans-serif;cursor:pointer;box-shadow:0 3px 0 #71301f}
-.route-frame{display:block;flex:1;width:100%;min-height:0;border:0;background:#0a4a68}
-@media(max-width:600px){.route-modal{padding:0}.route-panel{width:100vw;height:100dvh;border:0;border-radius:0}.route-toolbar{gap:7px;padding:9px}.route-caption{font-size:14px}.route-switch{padding:8px 11px;font-size:13px}.route-close{width:36px;height:36px}}
+/* Вікно маршруту: карта на весь екран, без рамок і смуг; кнопки плавають поверх моря */
+.route-modal{position:fixed;inset:0;z-index:50;display:none;padding:0;background:#0a4a68}
+.route-modal.is-open{display:block}
+.route-panel{position:absolute;inset:0;width:100%;height:100%;border:0;border-radius:0;background:transparent;box-shadow:none;overflow:hidden}
+.route-frame{position:absolute;inset:0;display:block;width:100%;height:100%;border:0;background:#0a4a68}
+.route-toolbar{position:absolute;z-index:2;top:max(14px,env(safe-area-inset-top,0px));left:0;right:0;display:flex;justify-content:center;align-items:center;gap:14px;padding:0 70px;background:none;border:0;pointer-events:none}
+.route-caption{display:none}
+.route-switch,.route-close{pointer-events:auto}
+.route-switch{min-width:118px;padding:11px 26px 13px;border:3px solid #fff;border-radius:999px;background:linear-gradient(180deg,rgba(255,255,255,.88),rgba(190,236,246,.78));color:#0b4a63;font:900 19px/1 Nunito,sans-serif;letter-spacing:.02em;cursor:pointer;backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);box-shadow:0 5px 0 rgba(11,59,79,.55),0 10px 22px rgba(7,54,75,.35),inset 0 2px 4px #fff;transition:transform .15s,box-shadow .15s}
+.route-switch:hover{transform:translateY(-2px);box-shadow:0 7px 0 rgba(11,59,79,.55),0 14px 26px rgba(7,54,75,.4),inset 0 2px 4px #fff}
+.route-switch:active{transform:translateY(3px);box-shadow:0 2px 0 rgba(11,59,79,.55),inset 0 2px 4px #fff}
+.route-switch[aria-pressed="true"]{background:linear-gradient(180deg,#ffb25a,#f2765a);color:#fff;border-color:#fff;text-shadow:0 2px 0 rgba(120,40,20,.5);box-shadow:0 5px 0 #a8452c,0 0 0 5px rgba(255,255,255,.35),0 10px 22px rgba(7,54,75,.4)}
+.route-close{position:absolute;top:0;right:max(14px,env(safe-area-inset-right,0px));width:46px;height:46px;border:3px solid #fff;border-radius:50%;background:#b84d35;color:#fff;font:900 26px/1 Nunito,sans-serif;cursor:pointer;box-shadow:0 4px 0 #71301f,0 8px 16px rgba(7,54,75,.35)}
+.route-close:hover{background:#cf5c42}
+@media(max-width:600px){.route-toolbar{gap:8px;padding:0 58px 0 12px;justify-content:flex-start}.route-switch{min-width:0;padding:9px 16px 11px;font-size:16px}.route-close{width:40px;height:40px;font-size:23px}}
 
 </style>
 </head>
@@ -236,7 +239,7 @@ const tk=document.getElementById('ticks');for(let i=0;i<32;i++){const a=i*Math.P
   const switches=[...document.querySelectorAll('.route-switch')];
   let previousFocus=null;
   function selectMap(grade){
-    const file=grade==='7'?'karta(3).html':'karta6.html';
+    const file=grade==='7'?'karta.html':'karta6.html';
     switches.forEach(btn=>btn.setAttribute('aria-pressed',btn.dataset.map===grade?'true':'false'));
     if(frame.getAttribute('src')!==file) frame.src=file;
   }
