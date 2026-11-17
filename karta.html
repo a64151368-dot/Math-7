@@ -161,7 +161,6 @@ dialog::backdrop{background:rgba(70,30,20,.55)}
     <svg id="links" viewBox="0 0 2400 1500"></svg>
     <svg class="rose" viewBox="-200 -200 400 400" aria-hidden="true"><g class="spin"><circle r="190" fill="none" stroke="#C27100" stroke-width="3" stroke-dasharray="2 10"/><circle r="150" fill="none" stroke="#C27100" stroke-width="2"/><path d="M0 -195 L22 -22 L0 0 L-22 -22Z M0 195 L22 22 L0 0 L-22 22Z M-195 0 L-22 -22 L0 0 L-22 22Z M195 0 L22 -22 L0 0 L22 22Z" fill="#F2A65A" stroke="#7A4515" stroke-width="3" stroke-linejoin="round"/><path d="M0 -120 L12 -12 L0 0Z M120 0 L12 12 L0 0Z M0 120 L-12 12 L0 0Z M-120 0 L-12 -12 L0 0Z" fill="#7A4515" transform="rotate(45)"/></g></svg>
     <div class="core" aria-hidden="true">
-      <div class="kicker">7 клас · 24 зупинки · 7 розділів</div>
       <div class="big">МАТЕМАТИКА</div>
       <div class="row"><div class="seven">7</div><div class="oval">наш маршрут</div></div>
     </div>
@@ -274,19 +273,13 @@ SECS.forEach((s,si)=>{
   el.style.cssText=`left:${s.x}px;top:${s.y}px;--c:${s.c};--tint:${s.t}`;
   el.innerHTML=`<div class="top"><div class="tt">
       <div class="tag">${s.place} <i class="${s.k}">${s.k==="alg"?"Алгебра":"Геометрія"}</i></div>
-      <h2 tabindex="0" role="button" data-sec="${si}"><b>${s.r}.</b>${s.n}</h2>
+      <h2 tabindex="0" role="button" data-sec="${si}">${s.n}</h2>
       <div class="rule"></div></div>
       <div class="pic"><svg viewBox="0 0 176 122" aria-hidden="true">${seaPic(si)}</svg></div></div>
-    <ol>${idx.map(i=>`<li><button type="button" data-i="${i}"><i>${i+1}</i>${SHORT[i]}${i===N-1?'<span class="star">★</span>':""}</button></li>`).join("")}</ol>`;
+    <ol>${idx.map(i=>`<li><button type="button" data-i="${i}">${SHORT[i]}${i===N-1?'<span class="star">★</span>':""}</button></li>`).join("")}</ol>`;
   host.appendChild(el);
 });
-/* фініш і старт */
-const fin=document.createElement("div");fin.className="fin";fin.style.cssText="left:60px;top:590px";
-fin.innerHTML=`<h2 class="badge finish">${LIGHTHOUSE}Фініш</h2>
-`;
-host.appendChild(fin);
-const st=document.createElement("div");st.className="badge start";st.style.cssText="left:470px;top:-62px";
-st.innerHTML=`<svg width="38" height="44" viewBox="0 0 38 44" aria-hidden="true"><line x1="6" y1="4" x2="6" y2="42" stroke="#5A2E14" stroke-width="5" stroke-linecap="round"/><path d="M8 5 L34 12 L8 21Z" fill="#FFE27A" stroke="#5A2E14" stroke-width="3" stroke-linejoin="round"/></svg>Старт`;host.appendChild(st);
+/* Написи «Старт» і «Фініш» прибрано для чистішої карти. */
 [["x²",2340,20],["π",1640,470]].forEach(([t,x,y])=>{const d=document.createElement("div");d.className="doodle";d.textContent=t;d.style.left=x+"px";d.style.top=y+"px";host.appendChild(d)});
 /* декор: кораблик, якір, пляшка, чайки, хвилі внизу */
 function addDeco(cls,x,y,w,h,svg){const d=document.createElement("div");d.className="deco "+cls;d.style.cssText=`left:${x}px;top:${y}px;width:${w}px;height:${h}px`;d.innerHTML=`<svg viewBox="0 0 ${w} ${h}" width="${w}" height="${h}" style="overflow:visible">${svg}</svg>`;host.appendChild(d)}
