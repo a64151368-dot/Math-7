@@ -70,6 +70,20 @@ h1 .ch{display:inline-block;opacity:0;animation:drop .9s cubic-bezier(.3,1.6,.5,
 .label{position:absolute;left:-40px;top:245px;width:380px;height:140px;pointer-events:none;overflow:visible}
 .compass:hover .label .main{fill-opacity:1}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;opacity:1}}
+
+/* Вікно маршруту: карти відкриваються поверх головної сторінки */
+.route-modal{position:fixed;inset:0;z-index:50;display:none;align-items:center;justify-content:center;padding:clamp(8px,2vw,24px);background:rgba(5,35,48,.78);backdrop-filter:blur(8px)}
+.route-modal.is-open{display:flex}
+.route-panel{width:min(96vw,1700px);height:min(94vh,1050px);display:flex;flex-direction:column;overflow:hidden;border:3px solid rgba(255,238,190,.9);border-radius:24px;background:#f8edcf;box-shadow:0 28px 90px rgba(0,0,0,.48)}
+.route-toolbar{flex:none;display:flex;align-items:center;gap:10px;padding:10px 14px;background:linear-gradient(180deg,#fff4d2,#e9c58a);border-bottom:2px solid #b8874c}
+.route-caption{margin-right:auto;color:#563719;font:900 clamp(15px,2vw,21px) Rubik, sans-serif}
+.route-switch{border:2px solid #805323;border-radius:999px;padding:8px 18px;background:#fff8e8;color:#563719;font:900 15px Nunito,sans-serif;cursor:pointer;box-shadow:0 3px 0 #805323;transition:transform .15s,background .15s,color .15s}
+.route-switch:hover{transform:translateY(-1px)}
+.route-switch[aria-pressed="true"]{background:#155a70;color:#fff;border-color:#0b3b4f;box-shadow:0 3px 0 #0b3b4f}
+.route-close{width:40px;height:40px;flex:none;border:2px solid #805323;border-radius:50%;background:#b84d35;color:white;font:900 23px/1 Nunito,sans-serif;cursor:pointer;box-shadow:0 3px 0 #71301f}
+.route-frame{display:block;flex:1;width:100%;min-height:0;border:0;background:#0a4a68}
+@media(max-width:600px){.route-modal{padding:0}.route-panel{width:100vw;height:100dvh;border:0;border-radius:0}.route-toolbar{gap:7px;padding:9px}.route-caption{font-size:14px}.route-switch{padding:8px 11px;font-size:13px}.route-close{width:36px;height:36px}}
+
 </style>
 </head>
 <body>
@@ -112,7 +126,7 @@ h1 .ch{display:inline-block;opacity:0;animation:drop .9s cubic-bezier(.3,1.6,.5,
   </svg>
   </h1>
   <div class="cwrap" id="cwrap">
-  <a class="compass" id="openBtn" href="karta.html" aria-label="Наш маршрут: відкрити ментальну карту">
+  <a class="compass" id="openBtn" href="#routeModal" aria-label="Наш маршрут: відкрити карти" aria-haspopup="dialog">
     <svg class="ripples" viewBox="0 0 300 70" aria-hidden="true">
       <ellipse cx="150" cy="30" rx="140" ry="26" fill="none" stroke="#fff6e0" stroke-width="3"/>
       <ellipse cx="150" cy="30" rx="140" ry="26" fill="none" stroke="#fff6e0" stroke-width="3"/>
@@ -184,6 +198,19 @@ h1 .ch{display:inline-block;opacity:0;animation:drop .9s cubic-bezier(.3,1.6,.5,
   </div>
 </div>
 
+
+<div class="route-modal" id="routeModal" aria-hidden="true">
+  <section class="route-panel" role="dialog" aria-modal="true" aria-label="Карти навчального маршруту">
+    <div class="route-toolbar">
+      <div class="route-caption">Оберіть навчальний маршрут</div>
+      <button class="route-switch" type="button" data-map="6" aria-pressed="true">6 клас</button>
+      <button class="route-switch" type="button" data-map="7" aria-pressed="false">7 клас</button>
+      <button class="route-close" id="closeRoute" type="button" aria-label="Закрити карти">×</button>
+    </div>
+    <iframe class="route-frame" id="routeFrame" title="Карта навчального маршруту"></iframe>
+  </section>
+</div>
+
 <script>
 /* fit stage */
 function fit(){const s=Math.max(innerWidth/1920,innerHeight/1080),e=document.getElementById('stage');
@@ -199,6 +226,51 @@ const sp=document.getElementById('spk');SP.forEach(([x,y],i)=>{sp.insertAdjacent
 /* compass ticks */
 const tk=document.getElementById('ticks');for(let i=0;i<32;i++){const a=i*Math.PI/16,l=i%4===0?10:5,r1=70,r2=r1-l;
   tk.insertAdjacentHTML('beforeend',`<line x1="${100+r1*Math.sin(a)}" y1="${120-r1*Math.cos(a)}" x2="${100+r2*Math.sin(a)}" y2="${120-r2*Math.cos(a)}" stroke-width="${i%4===0?2.5:1.5}"/>`)}
+
+/* Перемикання карт 6 і 7 класів у вікні «Наш маршрут» */
+(function(){
+  const modal=document.getElementById('routeModal');
+  const frame=document.getElementById('routeFrame');
+  const openBtn=document.getElementById('openBtn');
+  const closeBtn=document.getElementById('closeRoute');
+  const switches=[...document.querySelectorAll('.route-switch')];
+  let previousFocus=null;
+  function selectMap(grade){
+    const file=grade==='7'?'karta.html':'karta6.html';
+    switches.forEach(btn=>btn.setAttribute('aria-pressed',btn.dataset.map===grade?'true':'false'));
+    if(frame.getAttribute('src')!==file) frame.src=file;
+  }
+  function openRoutes(event){
+    if(event)event.preventDefault();
+    previousFocus=document.activeElement;
+    modal.classList.add('is-open');
+    modal.setAttribute('aria-hidden','false');
+    document.body.style.overflow='hidden';
+    selectMap('6');
+    closeBtn.focus();
+  }
+  function closeRoutes(){
+    modal.classList.remove('is-open');
+    modal.setAttribute('aria-hidden','true');
+    document.body.style.overflow='';
+    if(previousFocus)previousFocus.focus();
+  }
+  openBtn.addEventListener('click',openRoutes);
+  closeBtn.addEventListener('click',closeRoutes);
+  switches.forEach(btn=>btn.addEventListener('click',()=>selectMap(btn.dataset.map)));
+  modal.addEventListener('click',e=>{if(e.target===modal)closeRoutes()});
+  document.addEventListener('keydown',e=>{
+    if(e.key==='Escape'&&modal.classList.contains('is-open'))closeRoutes();
+  });
+  /* Кнопка повернення з карти має повертати на головну, а не відкривати її всередині iframe. */
+  frame.addEventListener('load',()=>{
+    try{
+      const home=frame.contentDocument.querySelector('.home');
+      if(home)home.target='_top';
+    }catch(e){}
+  });
+})();
+
 </script>
 </body>
 </html>
