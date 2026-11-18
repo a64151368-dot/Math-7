@@ -138,7 +138,7 @@ body{background:#102b3b;color:#fff4dc}
  <button class="pin p2" type="button" data-modal="modal2" aria-label="2. Екіпаж — відкрити привітання">
   <span class="bubble"><span class="number">2</span></span><span class="tooltip">Екіпаж · СУП радісно вітає…</span>
  </button>
- <a class="pin p3" data-modal="modal3" href="https://raw.githubusercontent.com/a64151368-dot/Math-7/main/Gemini_Generated_Image_iy5tiqiy5tiqiy5t.jpeg" aria-label="3. Піратський кодекс">
+ <a class="pin p3" data-modal="modal3" href="https://raw.githubusercontent.com/a64151368-dot/Math-7/main/Gemini_Generated_Image_iy5tiqiy5tiqiy5t.jpeg.jpeg" aria-label="3. Піратський кодекс">
   <span class="bubble"><span class="number">3</span></span><span class="tooltip">Піратський кодекс</span>
  </a>
  <a class="pin p4" href="https://a64151368-dot.github.io/Math-7/" aria-label="4. Карта предмету">
@@ -187,8 +187,8 @@ body{background:#102b3b;color:#fff4dc}
  <div class="img-card">
   <h2 class="img-title" id="t3">3. Піратський кодекс</h2>
   <div class="img-frame">
-   <img data-src="https://raw.githubusercontent.com/a64151368-dot/Math-7/main/Gemini_Generated_Image_iy5tiqiy5tiqiy5t.jpeg" alt="3. Піратський кодекс"><span class="loading">Завантаження…</span>
-   <div class="img-fallback">Не вдалося завантажити зображення. <a href="https://raw.githubusercontent.com/a64151368-dot/Math-7/main/Gemini_Generated_Image_iy5tiqiy5tiqiy5t.jpeg" target="_blank" rel="noopener">Відкрити в новій вкладці</a></div>
+   <img data-src="https://raw.githubusercontent.com/a64151368-dot/Math-7/main/Gemini_Generated_Image_iy5tiqiy5tiqiy5t.jpeg.jpeg" data-alt="https://raw.githubusercontent.com/a64151368-dot/Math-7/main/Gemini_Generated_Image_iy5tiqiy5tiqiy5t.jpeg" alt="3. Піратський кодекс"><span class="loading">Завантаження…</span>
+   <div class="img-fallback">Не вдалося завантажити зображення. <a href="https://raw.githubusercontent.com/a64151368-dot/Math-7/main/Gemini_Generated_Image_iy5tiqiy5tiqiy5t.jpeg.jpeg" target="_blank" rel="noopener">Відкрити в новій вкладці</a></div>
   </div>
  </div>
 </section>
@@ -226,7 +226,7 @@ body{background:#102b3b;color:#fff4dc}
   const img=m.querySelector('img[data-src]');
   if(img&&!img.src){
    img.onload=()=>img.classList.add('ready');
-   img.onerror=()=>{m.querySelector('.loading').style.display='none';m.querySelector('.img-fallback').style.display='block'};
+   img.onerror=()=>{if(img.dataset.alt&&img.src!==img.dataset.alt){img.src=img.dataset.alt;return}m.querySelector('.loading').style.display='none';m.querySelector('.img-fallback').style.display='block'};
    img.src=img.dataset.src;
   }
  }
