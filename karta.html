@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Математика 7. Наш маршрут</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Marck+Script&family=Caveat:wght@600;700&family=Nunito:wght@500;600;700;800;900&display=swap">
+<style>
+:root{
+  --sun-1:#FFF4D2; --sun-2:#FFDDB0; --grid:rgba(200,110,30,.10); --grid-b:rgba(200,110,30,.18);
+  --ink:#3A2142; --muted:#7A5A66; --card:#FFFCF5; --line:#F0D6B8;
+  --hand:"Caveat","Segoe Print","Comic Sans MS",cursive;
+  --pen:"Marck Script","Caveat","Segoe Script",cursive;
+  --round:"Nunito",system-ui,-apple-system,"Segoe UI",sans-serif;
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;overflow:hidden}
+body{color:var(--ink);font-family:var(--round);font-weight:600;
+  background:linear-gradient(var(--grid-b) 1px,transparent 1px) 0 0/100px 100px,linear-gradient(90deg,var(--grid-b) 1px,transparent 1px) 0 0/100px 100px,linear-gradient(var(--grid) 1px,transparent 1px) 0 0/20px 20px,linear-gradient(90deg,var(--grid) 1px,transparent 1px) 0 0/20px 20px,radial-gradient(1000px 700px at 50% 45%,#FFF8E2 0%,transparent 70%),linear-gradient(160deg,var(--sun-1) 0%,var(--sun-2) 100%)}
+h2,h3,p{margin:0}
+button{font:inherit;color:inherit}
+:focus-visible{outline:3px solid #E0503B;outline-offset:3px;border-radius:8px}
+
+#vp{position:fixed;inset:0;overflow:hidden;cursor:grab;touch-action:none;padding:env(safe-area-inset-top,0) env(safe-area-inset-right,0) env(safe-area-inset-bottom,0) env(safe-area-inset-left,0)}
+#vp.drag{cursor:grabbing}
+#board{position:absolute;left:0;top:0;width:2400px;height:1500px;transform-origin:0 0}
+#links{position:absolute;inset:0;width:2400px;height:1500px;overflow:visible;pointer-events:none}
+.branch{fill:none;stroke-linecap:round;opacity:.7}
+.branch-dash{fill:none;stroke:#FFFCF5;stroke-width:2.5;stroke-dasharray:2 12;stroke-linecap:round;animation:flow 2.6s linear infinite}
+@keyframes flow{to{stroke-dashoffset:-28}}
+.rn circle{stroke:#FFFCF5;stroke-width:4}
+.rn text{font-family:var(--round);font-weight:900;font-size:17px;fill:#fff;text-anchor:middle}
+
+/* центр */
+.core{position:absolute;left:800px;top:540px;width:800px;height:420px;display:grid;place-items:center;align-content:center;gap:0;text-align:center;pointer-events:none}
+.core .kicker{font-family:var(--hand);font-size:40px;font-weight:700;color:var(--muted);line-height:1}
+.core .big{font-family:var(--round);font-weight:900;font-size:104px;line-height:.95;letter-spacing:-.01em;color:#F2A65A;
+  -webkit-text-stroke:5px var(--ink);paint-order:stroke fill;text-shadow:6px 7px 0 var(--ink)}
+.core .row{display:flex;align-items:center;gap:18px;margin-top:10px}
+.core .seven{width:104px;height:104px;border-radius:50%;background:var(--ink);color:#FFF4D2;display:grid;place-items:center;font-size:66px;font-weight:900;transform:rotate(-8deg);box-shadow:0 0 0 6px #FFFCF5,0 0 0 9px var(--ink)}
+.core .oval{padding:14px 40px 18px;border-radius:50%;background:#F7C98B;border:3px solid var(--ink);font-family:var(--pen);font-size:52px;line-height:1;transform:rotate(-4deg);box-shadow:0 12px 20px -14px rgba(80,30,10,.6)}
+.core .meta{margin-top:16px;font-size:15px;font-weight:800;color:var(--muted);letter-spacing:.06em;text-transform:uppercase}
+
+/* розділ */
+.sec{position:absolute;width:640px;display:grid;gap:6px}
+.sec .top{display:flex;align-items:flex-end;gap:14px}
+.sec .tt{flex:1;min-width:0}
+.sec .tag{display:flex;gap:8px;align-items:center;font-family:var(--hand);font-size:23px;font-weight:700;color:var(--muted);line-height:1}
+.sec .tag i{font-style:normal;font-family:var(--round);font-size:11px;font-weight:900;letter-spacing:.1em;text-transform:uppercase;padding:3px 9px;border-radius:999px;border:2px solid currentColor}
+.sec .tag i.alg{color:#7550E3}.sec .tag i.geo{color:#0C9483}
+.sec h2{font-family:var(--pen);font-weight:400;font-size:48px;text-wrap:balance;line-height:1.05;color:var(--c);cursor:pointer}
+.sec h2 b{font-family:var(--round);font-weight:900;font-size:30px;margin-right:10px;vertical-align:6px}
+.sec .rule{height:4px;border-radius:4px;background:var(--c);opacity:.85;margin-top:2px;transform:rotate(-.4deg)}
+.sec .desc{font-size:17px;line-height:1.4;font-weight:700;color:var(--ink);padding:8px 12px;border-radius:12px;background:var(--tint);border-left:5px solid var(--c)}
+.sec .desc b{font-family:var(--hand);font-size:21px;color:var(--c);margin-right:4px}
+.sec ol{list-style:none;margin:2px 0 0;padding:0;display:grid}
+.sec li button{width:100%;display:flex;align-items:center;gap:12px;border:0;background:none;padding:5px 4px;border-bottom:2px solid var(--line);cursor:pointer;text-align:left;font-family:var(--hand);font-size:27px;font-weight:700;line-height:1.1;color:var(--ink)}
+.sec li button:hover{background:rgba(255,255,255,.55)}
+.sec li i{flex:none;font-style:normal;width:30px;height:30px;border-radius:50%;background:var(--c);color:#fff;display:grid;place-items:center;font-family:var(--round);font-size:13px;font-weight:900}
+.sec li .star{margin-left:auto;color:#E8A700;font-size:24px}
+.pic{flex:none;position:relative;width:176px;height:122px;border-radius:50%;border:3px dashed var(--c);background:linear-gradient(180deg,#FFFCF5 0%,#FFF6E2 66%,#BFE6E1 66%,#8FD0CB 100%);display:grid;place-items:center;overflow:hidden;box-shadow:0 10px 18px -14px rgba(80,30,10,.6)}
+.pic svg{width:176px;height:122px}
+.pic .wv{animation:wv 4s linear infinite}
+@keyframes wv{to{transform:translateX(-24px)}}
+.pic .palm{transform-box:fill-box;transform-origin:50% 100%;animation:sway 4s ease-in-out infinite}
+@keyframes sway{50%{transform:rotate(-5deg)}}
+.pic text{font-family:var(--round);font-weight:900}
+
+/* фініш */
+.fin{position:absolute;width:600px;display:grid;gap:10px}
+.fin h2{justify-self:start}
+.fin .stats{display:flex;gap:10px}
+.fin .stats div{flex:1;background:#FFFCF5;border:2px dashed var(--line);border-radius:16px;padding:8px 12px;text-align:center}
+.fin .stats b{display:block;font-size:34px;font-weight:900;line-height:1.05}
+.fin .stats span{font-family:var(--hand);font-size:20px;font-weight:700;color:var(--muted)}
+.fin p{font-family:var(--hand);font-size:25px;font-weight:700;line-height:1.15}
+.legend{display:flex;gap:16px;flex-wrap:wrap;font-size:14px;font-weight:800;color:var(--muted);align-items:center}
+.legend i{font-style:normal;font-size:11px;font-weight:900;letter-spacing:.1em;text-transform:uppercase;padding:3px 9px;border-radius:999px;border:2px solid currentColor}
+.badge{position:absolute;display:inline-flex;align-items:center;gap:12px;padding:8px 26px 10px 14px;border-radius:22px;border:4px solid #5A2E14;font-family:"Rubik","Nunito",sans-serif;font-weight:900;font-size:42px;letter-spacing:.06em;line-height:1;text-transform:uppercase;box-shadow:0 7px 0 #5A2E14,0 14px 26px -10px rgba(90,46,20,.55);animation:glowb 2.4s ease-in-out infinite}
+.badge svg{flex:none}
+.badge.start{color:#fff;background:linear-gradient(180deg,#FF8A5C,#E0503B);transform:rotate(-4deg);text-shadow:0 3px 0 #9A2E1E}
+.badge.finish{position:relative;color:#5A2E14;background:linear-gradient(180deg,#FFE27A,#F2A62A);transform:rotate(-3deg);text-shadow:0 2px 0 #FFF4C8}
+@keyframes glowb{50%{box-shadow:0 7px 0 #5A2E14,0 0 0 10px rgba(255,210,90,.35),0 14px 26px -10px rgba(90,46,20,.55)}}
+.big-arrow{fill:none;stroke-linecap:round;stroke-linejoin:round}
+.arrow-move{animation:nudgea 1.6s ease-in-out infinite}
+@keyframes nudgea{50%{transform:translate(var(--dx),var(--dy))}}
+.doodle{position:absolute;font-family:var(--hand);font-size:30px;font-weight:700;color:var(--muted);opacity:.4;pointer-events:none}
+
+/* керування */
+.ctrl{position:fixed;right:max(16px,env(safe-area-inset-right,0px));bottom:max(46px,calc(env(safe-area-inset-bottom,0px) + 46px));display:grid;gap:10px;z-index:5}
+.ctrl button{width:52px;height:52px;border-radius:50%;border:3px solid var(--ink);background:#F7C98B;font-size:26px;font-weight:900;cursor:pointer;display:grid;place-items:center;box-shadow:0 6px 0 var(--ink)}
+.ctrl button:active{transform:translateY(4px);box-shadow:0 2px 0 var(--ink)}
+.hint{position:fixed;right:16px;background:rgba(255,252,245,.85);padding:2px 12px;border-radius:999px;bottom:max(10px,env(safe-area-inset-bottom,0px));font-family:var(--hand);font-size:19px;font-weight:700;color:var(--muted);z-index:5;pointer-events:none}
+
+/* картка теми */
+dialog{border:0;padding:0;border-radius:24px;background:var(--card);color:var(--ink);width:min(700px,calc(100vw - 24px));max-height:calc(100vh - 32px);overflow:auto;box-shadow:0 30px 60px -20px rgba(80,30,10,.55);border-top:8px solid var(--accent,var(--ink))}
+dialog::backdrop{background:rgba(70,30,20,.55)}
+.dl{display:grid;gap:14px;padding:16px clamp(14px,3vw,24px) 20px}
+.d-head{display:flex;align-items:flex-start;gap:14px}
+.d-sym{flex:none;width:56px;height:56px;border-radius:50%;display:grid;place-items:center;font-size:24px;font-weight:900;color:#fff;background:var(--accent,var(--ink));transform:rotate(-6deg)}
+.d-title{display:grid;gap:2px;min-width:0;flex:1}
+.d-sec{font-family:var(--hand);font-size:22px;font-weight:700;line-height:1.1;color:var(--accent,var(--ink))}
+.d-title h2{font-size:clamp(20px,3vw,26px);font-weight:900;line-height:1.15;text-wrap:balance}
+.d-step{font-size:13px;font-weight:800;color:var(--muted)}
+.x{flex:none;border:0;background:var(--ink);color:var(--card);width:38px;height:38px;border-radius:50%;font-size:20px;font-weight:900;cursor:pointer}
+.more{display:grid;gap:10px;padding:14px 16px;border-radius:16px;background:#FFF3DE}
+.more h3{font-family:var(--hand);font-size:26px;font-weight:700;line-height:1.1;color:var(--accent,var(--ink))}
+.more ul{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+.more li{position:relative;padding-left:22px;font-size:15.5px;line-height:1.5}
+.more li::before{content:"★";position:absolute;left:0;top:0;font-size:13px;color:var(--accent,var(--ink))}
+.formula{font-size:clamp(18px,2.6vw,22px);font-weight:800;line-height:1.4;padding:12px 16px;border-radius:14px;border:2px dashed var(--accent,var(--ink));background:#fff;text-align:center}
+.formula b{display:block;font-family:var(--hand);font-size:22px;font-weight:700;color:var(--accent,var(--ink))}
+.d-foot{display:flex;gap:10px;flex-wrap:wrap;align-items:center;justify-content:space-between}
+.btn{border:2px solid var(--line);background:#fff;border-radius:999px;padding:8px 16px;font-weight:800;font-size:15px;cursor:pointer}
+.btn:hover:not(:disabled){border-color:var(--accent,var(--ink))}
+.btn:disabled{opacity:.35;cursor:default}
+.d-list{list-style:none;margin:0;padding:0;display:grid;gap:6px}
+.d-list button{width:100%;display:flex;gap:10px;align-items:center;text-align:left;border:0;background:#FFF3DE;border-radius:12px;padding:8px 12px;cursor:pointer;font-size:15.5px;font-weight:700;line-height:1.35}
+.d-list button:hover{background:#FFE9C4}
+.d-list i{flex:none;font-style:normal;width:28px;height:28px;border-radius:50%;background:var(--accent);color:#fff;display:grid;place-items:center;font-size:12.5px;font-weight:900}
+
+/* морські деталі */
+.rose{position:absolute;left:880px;top:430px;width:640px;height:640px;opacity:.14;pointer-events:none}
+.rose .spin{animation:spinr 90s linear infinite}
+@keyframes spinr{to{transform:rotate(360deg)}}
+.deco{position:absolute;pointer-events:none;overflow:visible}
+.deco.ship .rock{transform-box:fill-box;transform-origin:50% 90%;animation:rock 3s ease-in-out infinite}
+@keyframes rock{25%{transform:rotate(5deg)}75%{transform:rotate(-5deg)}}
+.deco.ship{animation:sail 14s ease-in-out infinite}
+@keyframes sail{50%{transform:translateX(40px)}}
+.deco.bottle{animation:bobb 5s ease-in-out infinite}
+@keyframes bobb{50%{transform:translateY(-10px) rotate(8deg)}}
+.deco.gulls path{animation:flapg 2.6s ease-in-out infinite}
+@keyframes flapg{50%{transform:translateY(-6px) scaleY(.7)}}
+.seaband{position:absolute;left:0;top:1505px;width:2400px;height:60px;pointer-events:none;overflow:hidden;opacity:.55}
+.seaband svg{width:2600px;height:60px;animation:wv2 12s linear infinite}
+@keyframes wv2{to{transform:translateX(-200px)}}
+.badge.finish svg{width:40px;height:54px}
+
+.deco.chest .glint{animation:twk 2s ease-in-out infinite;transform-box:fill-box;transform-origin:center}
+@keyframes twk{50%{opacity:.2;transform:scale(.5)}}
+.deco.chest .lid{transform-box:fill-box;transform-origin:50% 100%;animation:lid 4s ease-in-out infinite}
+@keyframes lid{0%,60%,100%{transform:rotate(0)}75%{transform:rotate(-10deg)}}
+.deco.parrot .head{transform-box:fill-box;transform-origin:50% 90%;animation:nod 2.4s ease-in-out infinite}
+@keyframes nod{50%{transform:rotate(-12deg)}}
+.deco.parrot .tail{transform-box:fill-box;transform-origin:50% 0;animation:sway2 3s ease-in-out infinite}
+@keyframes sway2{50%{transform:rotate(6deg)}}
+.deco.pirate .scope{transform-box:fill-box;transform-origin:0 100%;animation:scope 5s ease-in-out infinite}
+@keyframes scope{50%{transform:rotate(-8deg)}}
+.deco .lbl{font-family:var(--hand);font-weight:700;font-size:24px;fill:#C27100}
+@media (prefers-reduced-motion:reduce){*{animation:none!important}}
+
+/* Кнопка «Старт» */
+a.badge.start{text-decoration:none;cursor:pointer;z-index:6;color:#fff;font-size:46px;gap:14px;padding:10px 30px 12px 16px;
+  background:linear-gradient(180deg,#FF9A6B,#E0503B);text-shadow:0 3px 0 #9A2E1E,0 0 14px rgba(255,255,255,.35);
+  animation:glowb 2.4s ease-in-out infinite,startPop 3.2s ease-in-out infinite;transition:filter .2s}
+a.badge.start:hover,a.badge.start:focus-visible{filter:brightness(1.1) saturate(1.1);animation-play-state:paused;transform:rotate(-2deg) scale(1.08)}
+a.badge.start svg{width:46px;height:58px}
+a.badge.start .go{font-size:.55em;letter-spacing:.04em;opacity:.95;margin-left:2px}
+@keyframes startPop{0%,100%{transform:rotate(-4deg) scale(1)}50%{transform:rotate(-4deg) scale(1.07)}}
+</style>
+</head>
+<body>
+<div id="vp">
+  <div id="board">
+    <svg id="links" viewBox="0 0 2400 1500"></svg>
+    <svg class="rose" viewBox="-200 -200 400 400" aria-hidden="true"><g class="spin"><circle r="190" fill="none" stroke="#C27100" stroke-width="3" stroke-dasharray="2 10"/><circle r="150" fill="none" stroke="#C27100" stroke-width="2"/><path d="M0 -195 L22 -22 L0 0 L-22 -22Z M0 195 L22 22 L0 0 L-22 22Z M-195 0 L-22 -22 L0 0 L-22 22Z M195 0 L22 -22 L0 0 L22 22Z" fill="#F2A65A" stroke="#7A4515" stroke-width="3" stroke-linejoin="round"/><path d="M0 -120 L12 -12 L0 0Z M120 0 L12 12 L0 0Z M0 120 L-12 12 L0 0Z M-120 0 L-12 -12 L0 0Z" fill="#7A4515" transform="rotate(45)"/></g></svg>
+    <div class="core" aria-hidden="true">
+      <div class="big">МАТЕМАТИКА</div>
+      <div class="row"><div class="seven">7</div><div class="oval">наш маршрут</div></div>
+    </div>
+    <div id="secs"></div>
+  </div>
+</div>
+<div class="ctrl">
+  <button id="zin" type="button" aria-label="Наблизити">+</button>
+  <button id="zout" type="button" aria-label="Віддалити">−</button>
+  <button id="zfit" type="button" aria-label="Показати всю карту">↺</button>
+</div>
+<div class="hint">коліщатко чи +/− — масштаб · тягни — посунути · натисни тему — картка</div>
+
+<dialog id="dlg" aria-labelledby="dTitle">
+  <div class="dl">
+    <div class="d-head">
+      <div class="d-sym" id="dNum">1</div>
+      <div class="d-title"><span class="d-sec" id="dSec"></span><h2 id="dTitle"></h2><span class="d-step" id="dStep"></span></div>
+      <button class="x" id="dClose" type="button" aria-label="Закрити">×</button>
+    </div>
+    <div id="dBody" style="display:grid;gap:14px"></div>
+    <div class="d-foot">
+      <button class="btn" id="dPrev" type="button">← Попередня</button>
+      <button class="btn" id="dNext" type="button">Наступна →</button>
+    </div>
+  </div>
+</dialog>
+
+<script>
+const ST=[
+ [0,"Точка, пряма, промінь та відрізок","Точка, пряма,\nпромінь, відрізок",["Через дві точки проходить лише одна пряма.","Промінь має початок, але не має кінця; відрізок має два кінці.","Якщо точка C лежить між A і B, довжини відрізків додаються."],"AB = AC + CB"],
+ [0,"Кут та його властивості. Вимірювання кутів. Бісектриса кута","Кут. Вимірювання.\nБісектриса",["Кути вимірюють транспортиром у градусах.","Гострий < 90°, прямий = 90°, тупий > 90°, розгорнутий = 180°.","Бісектриса — промінь, що ділить кут навпіл."],"∠AOC = ∠COB = ½ ∠AOB"],
+ [1,"Вирази зі змінними. Цілі раціональні вирази","Вирази\nзі змінними",["Вираз зі змінними має значення, коли підставити числа замість букв.","Цілий вираз не містить ділення на вираз зі змінною.","Приклади: 2a + 3b, x² − 1, (m + n) : 5."],"2a + 3b при a = 1, b = 2 → 8"],
+ [1,"Тотожність. Тотожні перетворення виразу","Тотожність.\nПеретворення",["Тотожність — рівність, правильна при будь-яких значеннях змінних.","Тотожні перетворення: розкриття дужок, зведення подібних доданків.","Щоб довести тотожність, перетворюють одну частину до вигляду іншої."],"a(b + c) = ab + ac"],
+ [2,"Степінь з натуральним показником","Степінь",["aⁿ — добуток n множників, кожен з яких дорівнює a.","a — основа, n — показник; a¹ = a.","Від'ємне число в парному степені — додатне, у непарному — від'ємне."],"2⁵ = 2·2·2·2·2 = 32"],
+ [2,"Властивості степеня з натуральним показником","Властивості\nстепеня",["При множенні степенів з однаковою основою показники додають.","При діленні — віднімають; при піднесенні степеня до степеня — множать.","Степінь добутку дорівнює добутку степенів."],"aᵐ·aⁿ = aᵐ⁺ⁿ · (aᵐ)ⁿ = aᵐⁿ · (ab)ⁿ = aⁿbⁿ"],
+ [3,"Суміжні та вертикальні кути, їхні властивості","Суміжні та\nвертикальні кути",["Суміжні кути мають спільну сторону, а дві інші утворюють пряму.","Сума суміжних кутів дорівнює 180°.","Вертикальні кути рівні."],"∠1 + ∠2 = 180° · ∠1 = ∠3"],
+ [3,"Паралельні та перпендикулярні прямі. Перпендикуляр. Відстань від точки до прямої","Паралельні й\nперпендикулярні",["Паралельні прямі лежать в одній площині й не перетинаються.","Перпендикулярні прямі перетинаються під прямим кутом.","Відстань від точки до прямої — довжина перпендикуляра до неї."],"a ∥ b · a ⊥ c"],
+ [3,"Кути, утворені при перетині двох прямих січною. Ознаки паралельності прямих","Січна. Ознаки\nпаралельності",["Січна утворює відповідні, внутрішні різносторонні та односторонні кути.","Прямі паралельні, якщо відповідні або різносторонні кути рівні.","…або якщо сума односторонніх кутів дорівнює 180°."],"∠1 + ∠2 = 180° ⇒ a ∥ b"],
+ [4,"Стандартний вигляд одночленів. Множення та піднесення одночленів до степеня","Одночлени",["Одночлен стандартного вигляду: числовий коефіцієнт і степені різних змінних.","При множенні коефіцієнти перемножують, показники однакових змінних додають.","При піднесенні до степеня кожен множник підносять до цього степеня."],"(−2a²b)³ = −8a⁶b³"],
+ [4,"Многочлен. Подібні члени многочленів та їх зведення","Многочлен.\nПодібні члени",["Многочлен — сума одночленів.","Подібні члени мають однакову буквену частину.","Зводячи подібні, додають їхні коефіцієнти."],"3x² + 5x − x² = 2x² + 5x"],
+ [4,"Додавання та віднімання многочленів","Додавання й\nвіднімання",["Розкриваємо дужки та зводимо подібні члени.","Якщо перед дужками «+», знаки зберігаються.","Якщо перед дужками «−», знаки членів змінюються на протилежні."],"(a + b) − (a − b) = 2b"],
+ [4,"Множення одночлена на многочлен","Одночлен ×\nмногочлен",["Одночлен множать на кожен член многочлена.","Отримані добутки додають.","Обернена дія — винесення спільного множника."],"2x(x − 3) = 2x² − 6x"],
+ [4,"Множення многочлена на многочлен","Многочлен ×\nмногочлен",["Кожен член першого многочлена множать на кожен член другого.","Отримані добутки додають і зводять подібні.","Кількість добутків = добуток кількостей членів."],"(a + b)(c + d) = ac + ad + bc + bd"],
+ [5,"Трикутник і його елементи. Види трикутників","Трикутник.\nВиди",["Елементи: три вершини, три сторони, три кути.","За кутами: гострокутний, прямокутний, тупокутний.","За сторонами: різносторонній, рівнобедрений, рівносторонній."],"P = a + b + c"],
+ [5,"Висота, бісектриса і медіана трикутника","Висота, бісектриса,\nмедіана",["Висота — перпендикуляр з вершини до прямої, що містить протилежну сторону.","Бісектриса ділить кут трикутника навпіл.","Медіана сполучає вершину із серединою протилежної сторони."],"У кожного трикутника — по 3 висоти, бісектриси й медіани"],
+ [5,"Рівність геометричних фігур. Перша та друга ознаки рівності трикутників","I і II ознаки\nрівності",["Рівні фігури можна сумістити накладанням.","I ознака: дві сторони і кут між ними.","II ознака: сторона і два прилеглі до неї кути."],"△ABC = △A₁B₁C₁"],
+ [5,"Рівнобедрений трикутник, його властивості та ознаки. Третя ознака рівності трикутників","Рівнобедрений.\nIII ознака",["У рівнобедреному трикутнику кути при основі рівні.","Медіана, проведена до основи, є бісектрисою і висотою.","III ознака рівності: три сторони одного дорівнюють трьом сторонам іншого."],"AB = BC ⇒ ∠A = ∠C"],
+ [6,"Розкладання многочленів на множники. Винесення спільного множника за дужки","Спільний\nмножник",["Знаходимо спільний множник усіх членів: число і змінні.","Ділимо кожен член на цей множник — отримуємо вираз у дужках.","Перевірка: розкрийте дужки й порівняйте."],"6x² + 9x = 3x(2x + 3)"],
+ [6,"Розкладання многочленів на множники. Спосіб групування","Спосіб\nгрупування",["Об'єднуємо члени в групи зі спільним множником.","У кожній групі виносимо спільний множник.","Виносимо спільну дужку."],"ax + ay + bx + by = (x + y)(a + b)"],
+ [6,"Квадрат суми та квадрат різниці двох виразів","Квадрат суми\nі різниці",["Квадрат першого, подвоєний добуток, квадрат другого.","Знак середнього члена збігається зі знаком у дужках.","Формули працюють в обидва боки."],"(a ± b)² = a² ± 2ab + b²"],
+ [6,"Добуток різниці та суми двох виразів. Різниця квадратів","Різниця\nквадратів",["Добуток різниці й суми двох виразів дорівнює різниці їхніх квадратів.","Різницю квадратів розкладають на добуток.","Зручно для усних обчислень: 51·49 = 2500 − 1."],"(a − b)(a + b) = a² − b²"],
+ [6,"Сума та різниця кубів двох виразів","Сума й різниця\nкубів",["Сума кубів розкладається на суму та неповний квадрат різниці.","Різниця кубів — на різницю та неповний квадрат суми.","Неповний квадрат має ab замість 2ab."],"a³ ± b³ = (a ± b)(a² ∓ ab + b²)"],
+ [6,"Застосування різних способів розкладання многочленів на множники. Підсумкове заняття","Усі способи.\nПідсумок",["Спершу виносимо спільний множник.","Потім шукаємо формулу скороченого множення або групуємо.","Розкладаємо до кінця, поки множники не стануть нерозкладними."],"2x³ − 8x = 2x(x − 2)(x + 2)"]
+];
+/* розділи: колір, тло, вид, опис, позиція картки, точка під'єднання гілки, малюнок */
+const SECS=[
+ {r:"I",n:"Геометричні фігури",c:"#0C9483",t:"#DDF4EF",k:"geo",place:"Перші кроки",
+  d:"Точки, прямі, промені й відрізки, а також кути: як їх позначати, вимірювати та ділити навпіл.",
+  x:50,y:60,ax:0,ay:0},
+ {r:"II",n:"Цілі вирази. Тотожності",c:"#7550E3",t:"#EFE8FF",k:"alg",place:"Мова букв",
+  d:"Вирази зі змінними та їхні значення; тотожності й перетворення, що не змінюють суті виразу.",
+  x:880,y:40,ax:0,ay:0},
+ {r:"III",n:"Степінь",c:"#E0503B",t:"#FFE2DC",k:"alg",place:"Сходи степенів",
+  d:"Степінь як короткий запис добутку однакових множників і правила дій зі степенями.",
+  x:1710,y:60,ax:0,ay:0},
+ {r:"IV",n:"Прямі на площині",c:"#2A78CC",t:"#E0EEFC",k:"geo",place:"Перехрестя",
+  d:"Суміжні й вертикальні кути, паралельні та перпендикулярні прямі, січна та ознаки паралельності.",
+  x:1710,y:560,ax:0,ay:0},
+ {r:"V",n:"Одночлени та многочлени",c:"#C27100",t:"#FFF0C4",k:"alg",place:"Конструктор виразів",
+  d:"Одночлени стандартного вигляду, многочлени, зведення подібних, додавання, віднімання й множення.",
+  x:1710,y:990,ax:0,ay:0},
+ {r:"VI",n:"Трикутники",c:"#C93C7A",t:"#FFE2EE",k:"geo",place:"Трикутна площа",
+  d:"Елементи й види трикутників, висота, бісектриса, медіана, рівнобедрений трикутник і три ознаки рівності.",
+  x:880,y:1070,ax:0,ay:0},
+ {r:"VII",n:"Формули скороченого множення",c:"#4D7C0F",t:"#E9F3DA",k:"alg",place:"Фінішна пряма",
+  d:"Розкладання многочленів на множники: спільний множник, групування, квадрат суми, різниця квадратів, куби.",
+  x:50,y:990,ax:0,ay:0}
+];
+const SHORT=["Точка, пряма, промінь, відрізок","Кут. Вимірювання. Бісектриса","Вирази зі змінними","Тотожність. Перетворення","Степінь","Властивості степеня","Суміжні та вертикальні кути","Паралельні й перпендикулярні прямі","Січна. Ознаки паралельності","Одночлени","Многочлен. Подібні члени","Додавання й віднімання многочленів","Одночлен × многочлен","Многочлен × многочлен","Трикутник. Види трикутників","Висота, бісектриса, медіана","I і II ознаки рівності","Рівнобедрений. III ознака","Спільний множник","Спосіб групування","Квадрат суми й різниці","Різниця квадратів","Сума й різниця кубів","Усі способи. Підсумок"];
+const PICS=[
+ /* I */ `<line x1="10" y1="80" x2="140" y2="80" stroke="#3A2142" stroke-width="3"/><circle cx="30" cy="80" r="5" fill="#0C9483"/><circle cx="110" cy="80" r="5" fill="#0C9483"/><text x="24" y="98" font-size="14" fill="#3A2142">A</text><text x="104" y="98" font-size="14" fill="#3A2142">B</text><line x1="40" y1="60" x2="128" y2="12" stroke="#0C9483" stroke-width="3"/><line x1="40" y1="60" x2="138" y2="60" stroke="#0C9483" stroke-width="3"/><line x1="40" y1="60" x2="128" y2="34" stroke="#3A2142" stroke-width="2" stroke-dasharray="4 4"/><path d="M70 60 A30 30 0 0 0 66 46" fill="none" stroke="#E0503B" stroke-width="3"/><circle cx="40" cy="60" r="4" fill="#3A2142"/>`,
+ /* II */ `<rect x="12" y="14" width="126" height="72" rx="10" fill="#EFE8FF" stroke="#7550E3" stroke-width="2.5" transform="rotate(-4 75 50)"/><text x="75" y="45" text-anchor="middle" font-size="24" fill="#7550E3">2a + 3b</text><text x="75" y="74" text-anchor="middle" font-size="16" fill="#3A2142">a(b+c)=ab+ac</text>`,
+ /* III */ `<rect x="18" y="68" width="22" height="22" fill="#FFB4A6" stroke="#E0503B" stroke-width="2"/><rect x="56" y="46" width="22" height="44" fill="#FF9A86" stroke="#E0503B" stroke-width="2"/><rect x="94" y="10" width="22" height="80" fill="#E0503B" stroke="#E0503B" stroke-width="2"/><text x="29" y="62" text-anchor="middle" font-size="15" fill="#3A2142">2¹</text><text x="67" y="40" text-anchor="middle" font-size="15" fill="#3A2142">2²</text><text x="130" y="30" text-anchor="middle" font-size="15" fill="#3A2142">2³</text><line x1="8" y1="91" x2="142" y2="91" stroke="#3A2142" stroke-width="3"/>`,
+ /* IV */ `<line x1="8" y1="34" x2="142" y2="34" stroke="#2A78CC" stroke-width="3.5"/><line x1="8" y1="74" x2="142" y2="74" stroke="#2A78CC" stroke-width="3.5"/><line x1="48" y1="96" x2="104" y2="6" stroke="#3A2142" stroke-width="3"/><path d="M90 34 A12 12 0 0 0 85 24" fill="none" stroke="#E0503B" stroke-width="3"/><path d="M65 74 A12 12 0 0 0 60 64" fill="none" stroke="#E0503B" stroke-width="3"/><text x="132" y="28" font-size="14" fill="#2A78CC">a</text><text x="132" y="68" font-size="14" fill="#2A78CC">b</text>`,
+ /* V */ `<rect x="12" y="14" width="50" height="50" fill="#F7C98B" stroke="#C27100" stroke-width="2.5"/><text x="37" y="45" text-anchor="middle" font-size="17" fill="#3A2142">x²</text><rect x="70" y="14" width="18" height="50" fill="#FFE2A6" stroke="#C27100" stroke-width="2.5"/><rect x="94" y="14" width="18" height="50" fill="#FFE2A6" stroke="#C27100" stroke-width="2.5"/><text x="91" y="80" text-anchor="middle" font-size="14" fill="#3A2142">x  x</text><rect x="120" y="14" width="18" height="18" fill="#fff" stroke="#C27100" stroke-width="2.5"/><rect x="120" y="38" width="18" height="18" fill="#fff" stroke="#C27100" stroke-width="2.5"/><text x="75" y="97" text-anchor="middle" font-size="13" fill="#C27100">x² + 2x + 2</text>`,
+ /* VI */ `<path d="M18 88 L132 88 L60 12 Z" fill="#FFE2EE" stroke="#C93C7A" stroke-width="3" stroke-linejoin="round"/><line x1="60" y1="12" x2="60" y2="88" stroke="#3A2142" stroke-width="2" stroke-dasharray="4 4"/><rect x="60" y="78" width="10" height="10" fill="none" stroke="#3A2142" stroke-width="1.5"/><line x1="60" y1="12" x2="75" y2="88" stroke="#C93C7A" stroke-width="2"/><text x="10" y="100" font-size="13" fill="#3A2142">A</text><text x="130" y="100" font-size="13" fill="#3A2142">C</text><text x="54" y="10" font-size="13" fill="#3A2142">B</text>`,
+ /* VII */ `<rect x="30" y="8" width="56" height="56" fill="#CFE5B4" stroke="#4D7C0F" stroke-width="2.5"/><rect x="86" y="8" width="28" height="56" fill="#E9F3DA" stroke="#4D7C0F" stroke-width="2.5"/><rect x="30" y="64" width="56" height="28" fill="#E9F3DA" stroke="#4D7C0F" stroke-width="2.5"/><rect x="86" y="64" width="28" height="28" fill="#A9CF7E" stroke="#4D7C0F" stroke-width="2.5"/><text x="58" y="42" text-anchor="middle" font-size="16" fill="#3A2142">a²</text><text x="100" y="42" text-anchor="middle" font-size="13" fill="#3A2142">ab</text><text x="58" y="83" text-anchor="middle" font-size="13" fill="#3A2142">ab</text><text x="100" y="83" text-anchor="middle" font-size="13" fill="#3A2142">b²</text>`
+];
+const N=ST.length;
+const secOf=i=>ST[i][0];
+
+
+/* морське віконце: малюнок + вода + острівець із пальмою */
+function seaPic(si){const c=SECS[si].c;
+  return `<g transform="translate(14 4) scale(.82)">${PICS[si]}</g>
+  <g class="wv"><path d="M-10 84 q6 -5 12 0 t12 0 t12 0 t12 0 t12 0 t12 0 t12 0 t12 0 t12 0 t12 0 t12 0 t12 0 t12 0 t12 0 t12 0 t12 0 t12 0" fill="none" stroke="#fff" stroke-width="2" opacity=".8"/>
+  <path d="M-10 100 q6 -4 12 0 t12 0 t12 0 t12 0 t12 0 t12 0 t12 0 t12 0 t12 0 t12 0 t12 0 t12 0 t12 0 t12 0 t12 0 t12 0 t12 0" fill="none" stroke="#fff" stroke-width="1.6" opacity=".6"/></g>
+  <path d="M128 86 Q146 72 168 86 Z" fill="#F6E2B6" stroke="#E2C48C" stroke-width="1.5"/>
+  <g class="palm"><path d="M150 82 q-2 -14 4 -26" fill="none" stroke="#8A5A2B" stroke-width="3" stroke-linecap="round"/>
+  <path d="M154 56 q-12 -4 -18 6 M154 56 q12 -6 18 4 M154 56 q-4 -10 -14 -10 M154 56 q6 -10 16 -8" fill="none" stroke="#3E7A2A" stroke-width="4" stroke-linecap="round"/></g>
+  <path d="M138 80 l0 -14" stroke="#5A2E14" stroke-width="1.6"/><path d="M138 66 l10 3 l-10 3z" fill="${c}"/>`}
+const LIGHTHOUSE=`<svg viewBox="0 0 46 62" aria-hidden="true"><path d="M8 26 L-30 14 L-30 38Z" fill="#FFE27A" opacity=".5"/><path d="M15 58 L18 22 L28 22 L31 58Z" fill="#FFFCF5" stroke="#5A2E14" stroke-width="2.5"/><rect x="16.5" y="32" width="13" height="6" fill="#E0503B"/><rect x="15.5" y="45" width="15" height="6" fill="#E0503B"/><rect x="17" y="14" width="12" height="9" rx="2" fill="#FFE27A" stroke="#5A2E14" stroke-width="2.5"/><path d="M15 15 L23 6 L31 15Z" fill="#E0503B" stroke="#5A2E14" stroke-width="2.5"/><path d="M4 60 Q23 52 42 60Z" fill="#8FD0CB"/></svg>`;
+/* розділи */
+const host=document.getElementById("secs");
+SECS.forEach((s,si)=>{
+  const idx=ST.map((r,i)=>[r,i]).filter(([r])=>r[0]===si).map(([,i])=>i);
+  const el=document.createElement("section");el.className="sec";
+  el.style.cssText=`left:${s.x}px;top:${s.y}px;--c:${s.c};--tint:${s.t}`;
+  el.innerHTML=`<div class="top"><div class="tt">
+      <div class="tag">${s.place} <i class="${s.k}">${s.k==="alg"?"Алгебра":"Геометрія"}</i></div>
+      <h2 tabindex="0" role="button" data-sec="${si}">${s.n}</h2>
+      <div class="rule"></div></div>
+      <div class="pic"><svg viewBox="0 0 176 122" aria-hidden="true">${seaPic(si)}</svg></div></div>
+    <ol>${idx.map(i=>`<li><button type="button" data-i="${i}">${SHORT[i]}${i===N-1?'<span class="star">★</span>':""}</button></li>`).join("")}</ol>`;
+  host.appendChild(el);
+});
+/* Напис «Старт» — перехід на піратську сторінку */
+const startBadge=document.createElement("a");startBadge.className="badge start";startBadge.href="https://github.com/a64151368-dot/Math-7/blob/main/pirate_cruise_dashboard.html";startBadge.target="_blank";startBadge.rel="noopener";
+startBadge.setAttribute("aria-label","Старт — перейти до піратського круїзу");
+startBadge.style.cssText="left:500px;top:-62px";
+startBadge.innerHTML=`<svg viewBox="0 0 46 58" aria-hidden="true"><line x1="9" y1="4" x2="9" y2="56" stroke="#5A2E14" stroke-width="5" stroke-linecap="round"/><path d="M12 6 L42 14 L12 28Z" fill="#FFE27A" stroke="#5A2E14" stroke-width="3.5" stroke-linejoin="round"/></svg><span>СТАРТ</span><span class="go">▶</span>`;
+host.appendChild(startBadge);
+[["x²",2340,20],["π",1640,470]].forEach(([t,x,y])=>{const d=document.createElement("div");d.className="doodle";d.textContent=t;d.style.left=x+"px";d.style.top=y+"px";host.appendChild(d)});
+/* декор: кораблик, якір, пляшка, чайки, хвилі внизу */
+function addDeco(cls,x,y,w,h,svg){const d=document.createElement("div");d.className="deco "+cls;d.style.cssText=`left:${x}px;top:${y}px;width:${w}px;height:${h}px`;d.innerHTML=`<svg viewBox="0 0 ${w} ${h}" width="${w}" height="${h}" style="overflow:visible">${svg}</svg>`;host.appendChild(d)}
+addDeco("ship",250,390,130,130,`<path d="M10 118 q15 -8 30 0 t30 0 t30 0 t30 0" fill="none" stroke="#5DB8C8" stroke-width="3" stroke-linecap="round"/>
+ <g class="rock"><path d="M14 92 L116 92 L102 112 L28 112Z" fill="#8A4B22" stroke="#4A2A16" stroke-width="3" stroke-linejoin="round"/><rect x="18" y="88" width="94" height="6" fill="#F0A04A" stroke="#4A2A16" stroke-width="2"/>
+ <circle cx="44" cy="102" r="4" fill="#FFE3A0" stroke="#4A2A16" stroke-width="1.5"/><circle cx="64" cy="102" r="4" fill="#FFE3A0" stroke="#4A2A16" stroke-width="1.5"/><circle cx="84" cy="102" r="4" fill="#FFE3A0" stroke="#4A2A16" stroke-width="1.5"/>
+ <line x1="65" y1="90" x2="65" y2="8" stroke="#4A2A16" stroke-width="4"/><path d="M68 12 Q110 46 104 84 L68 84Z" fill="#FFFCF5" stroke="#4A2A16" stroke-width="2.5" stroke-linejoin="round"/>
+ <path d="M62 20 Q34 50 36 82 L62 82Z" fill="#FFE8C4" stroke="#4A2A16" stroke-width="2.5" stroke-linejoin="round"/><path d="M65 6 L33 6 L33 26 L65 26Z" fill="#2B1B2E" stroke="#4A2A16" stroke-width="1.5"/><circle cx="49" cy="14" r="4.5" fill="#fff"/><path d="M42 20 L56 24 M56 20 L42 24" stroke="#fff" stroke-width="2" stroke-linecap="round"/>
+ <text x="86" y="64" text-anchor="middle" font-family="Nunito,sans-serif" font-weight="900" font-size="24" fill="#4D7C0F">7</text></g>`);
+addDeco("anchor",10,470,70,90,`<g fill="none" stroke="#7A5A66" stroke-width="6" stroke-linecap="round" opacity=".55"><circle cx="35" cy="12" r="8"/><line x1="35" y1="20" x2="35" y2="82"/><line x1="18" y1="34" x2="52" y2="34"/><path d="M6 58 Q10 84 35 84 Q60 84 64 58"/><path d="M2 64 L6 56 L14 62 M68 64 L64 56 L56 62"/></g>`);
+addDeco("bottle",560,880,90,60,`<g transform="rotate(-18 45 30)"><rect x="14" y="16" width="52" height="28" rx="12" fill="#BFE6E1" stroke="#3B8C88" stroke-width="3"/><rect x="64" y="23" width="14" height="14" rx="3" fill="#BFE6E1" stroke="#3B8C88" stroke-width="3"/><rect x="76" y="22" width="9" height="16" rx="2" fill="#B07A44" stroke="#5A2E14" stroke-width="2"/><rect x="24" y="22" width="30" height="16" rx="3" fill="#FFF3D6" stroke="#C9A36A" stroke-width="1.5"/><path d="M29 28 h20 M29 32 h14" stroke="#C9A36A" stroke-width="1.5"/></g><path d="M0 56 q11 -6 22 0 t22 0 t22 0 t22 0" fill="none" stroke="#5DB8C8" stroke-width="3" stroke-linecap="round"/>`);
+addDeco("gulls",1560,40,140,60,`<g fill="none" stroke="#7A5A66" stroke-width="3.5" stroke-linecap="round" opacity=".6"><path d="M10 30 q12 -12 24 0 q12 -12 24 0"/><path d="M80 14 q9 -9 18 0 q9 -9 18 0" style="animation-delay:-1s"/><path d="M60 50 q7 -7 14 0 q7 -7 14 0" style="animation-delay:-.5s"/></g>`);
+
+/* скриня зі скарбом біля фінішу */
+addDeco("chest",400,760,150,130,`<ellipse cx="75" cy="118" rx="62" ry="9" fill="#C9A36A" opacity=".35"/>
+ <circle cx="75" cy="58" r="46" fill="#FFE27A" opacity=".35"/>
+ <rect x="22" y="62" width="106" height="54" rx="6" fill="#A0602A" stroke="#4A2A16" stroke-width="3"/>
+ <path d="M40 62 V116 M110 62 V116" stroke="#E8B53C" stroke-width="7"/><rect x="66" y="74" width="18" height="18" rx="3" fill="#E8B53C" stroke="#4A2A16" stroke-width="2"/><circle cx="75" cy="83" r="3" fill="#4A2A16"/>
+ <circle cx="50" cy="60" r="9" fill="#FFD23F" stroke="#B8860B" stroke-width="2"/><circle cx="68" cy="56" r="9" fill="#FFD23F" stroke="#B8860B" stroke-width="2"/><circle cx="88" cy="58" r="9" fill="#FFD23F" stroke="#B8860B" stroke-width="2"/><circle cx="104" cy="61" r="8" fill="#FFD23F" stroke="#B8860B" stroke-width="2"/>
+ <path d="M60 52 l6 -12 l6 12z" fill="#E0503B" stroke="#8A2A1A" stroke-width="1.5"/><text x="88" y="62" text-anchor="middle" font-family="Nunito,sans-serif" font-weight="900" font-size="11" fill="#8A5A00">π</text>
+ <g class="lid"><path d="M20 62 Q22 30 75 28 Q128 30 130 62 Z" fill="#B8702F" stroke="#4A2A16" stroke-width="3" transform="translate(0 -18) rotate(-14 20 62)"/></g>
+ <path class="glint" d="M120 22 l3 8 l8 3 l-8 3 l-3 8 l-3 -8 l-8 -3 l8 -3z" fill="#fff"/><path class="glint" d="M30 30 l2 6 l6 2 l-6 2 l-2 6 l-2 -6 l-6 -2 l6 -2z" fill="#fff" style="animation-delay:-1s"/>
+ <text class="lbl" x="75" y="146" text-anchor="middle">скарб знань</text>`);
+/* папуга на жердинці */
+addDeco("parrot",2270,370,110,150,`<path d="M10 112 Q55 104 104 112" stroke="#8A5A2B" stroke-width="7" fill="none" stroke-linecap="round"/>
+ <g class="tail"><path d="M50 100 L40 146 L54 120 L60 148 L64 102Z" fill="#2A78CC" stroke="#1D4E86" stroke-width="2" stroke-linejoin="round"/></g>
+ <ellipse cx="56" cy="78" rx="24" ry="32" fill="#E0503B" stroke="#8A2A1A" stroke-width="2.5"/>
+ <path d="M64 62 Q86 78 72 108 Q60 96 58 70Z" fill="#F2C230" stroke="#A07A10" stroke-width="2"/><path d="M68 84 Q80 96 70 110 Q64 100 64 88Z" fill="#2A78CC"/>
+ <path d="M48 108 l-4 8 M58 108 l0 8" stroke="#4A2A16" stroke-width="3" stroke-linecap="round"/>
+ <g class="head"><circle cx="50" cy="40" r="20" fill="#E0503B" stroke="#8A2A1A" stroke-width="2.5"/><ellipse cx="43" cy="38" rx="9" ry="8" fill="#fff"/><circle cx="42" cy="38" r="3.5" fill="#2B1B2E"/>
+ <path d="M32 44 Q20 46 24 58 Q30 56 34 50Z" fill="#F7E7C6" stroke="#4A2A16" stroke-width="2"/><path d="M50 20 q4 -12 14 -10 q-6 4 -4 12" fill="#F2C230" stroke="#A07A10" stroke-width="1.5"/></g>`);
+/* юний пірат з підзорною трубою */
+addDeco("pirate",705,1250,160,200,`<ellipse cx="78" cy="194" rx="44" ry="6" fill="#C9A36A" opacity=".35"/>
+ <path d="M60 150 L56 190 M94 150 L98 190" stroke="#2B1B2E" stroke-width="12" stroke-linecap="round"/>
+ <path d="M48 190 h16 M90 190 h16" stroke="#4A2A16" stroke-width="7" stroke-linecap="round"/>
+ <path d="M50 100 Q78 92 104 100 L100 156 Q78 162 56 156Z" fill="#fff" stroke="#4A2A16" stroke-width="3" stroke-linejoin="round"/>
+ <path d="M54 114 H102 M54 128 H101 M55 142 H100" stroke="#E0503B" stroke-width="6"/>
+ <path d="M52 104 Q34 120 42 140" stroke="#F3C9A0" stroke-width="10" fill="none" stroke-linecap="round"/>
+ <circle cx="78" cy="68" r="28" fill="#F3C9A0" stroke="#4A2A16" stroke-width="3"/>
+ <path d="M50 62 Q52 36 80 38 Q106 40 106 62 Q78 52 50 62Z" fill="#E0503B" stroke="#4A2A16" stroke-width="3" stroke-linejoin="round"/>
+ <path d="M104 58 l14 -4 l-4 12z M106 60 l12 10 l-12 2z" fill="#E0503B" stroke="#4A2A16" stroke-width="2"/>
+ <circle cx="66" cy="54" r="3" fill="#fff"/><circle cx="84" cy="48" r="3" fill="#fff"/>
+ <path d="M54 66 L102 58" stroke="#2B1B2E" stroke-width="2.5"/><ellipse cx="88" cy="68" rx="9" ry="8" fill="#2B1B2E"/>
+ <circle cx="68" cy="70" r="3.5" fill="#2B1B2E"/><path d="M66 84 Q76 92 88 84" stroke="#4A2A16" stroke-width="3" fill="none" stroke-linecap="round"/><circle cx="60" cy="80" r="4" fill="#F29C8A" opacity=".7"/>
+ <g class="scope"><path d="M104 104 Q118 96 120 82" stroke="#F3C9A0" stroke-width="10" fill="none" stroke-linecap="round"/>
+ <g transform="rotate(-38 118 80)"><rect x="112" y="72" width="44" height="14" rx="3" fill="#C27100" stroke="#4A2A16" stroke-width="2.5"/><rect x="150" y="69" width="12" height="20" rx="3" fill="#E8B53C" stroke="#4A2A16" stroke-width="2.5"/><rect x="104" y="74" width="10" height="10" rx="2" fill="#E8B53C" stroke="#4A2A16" stroke-width="2"/></g></g>`);
+const band=document.createElement("div");band.className="seaband";
+let wd="";for(let x=0;x<2600;x+=100){wd+=`M${x} 30 q25 -16 50 0 t50 0 `}
+band.innerHTML=`<svg viewBox="0 0 2600 60" preserveAspectRatio="none"><path d="${wd} V60 H0Z" fill="#BFE6E1"/><path d="${wd}" fill="none" stroke="#5DB8C8" stroke-width="3"/></svg>`;
+document.getElementById("board").appendChild(band);
+
+
+/* короткі гілки від центру (фіксовані координати) */
+const NS="http://www.w3.org/2000/svg",links=document.getElementById("links");
+const mk=(t,a,p)=>{const e=document.createElementNS(NS,t);for(const k in a)e.setAttribute(k,a[k]);p.appendChild(e);return e};
+const ARCS=[
+ "M900 565 Q720 470 640 295",
+ "M1200 555 Q1180 420 1200 285",
+ "M1500 565 Q1680 470 1760 295",
+ "M1610 700 Q1660 655 1700 655",
+ "M1500 935 Q1640 1000 1750 975",
+ "M1200 960 Q1215 1010 1200 1055",
+ "M900 935 Q760 1000 650 975"
+];
+ARCS.forEach((d,si)=>mk("path",{d,class:"branch",stroke:SECS[si].c,"stroke-width":10},links));
+mk("path",{d:"M790 750 Q720 745 690 690",class:"branch",stroke:"#C27100","stroke-width":8},links);
+/* масивні стрілки */
+function bigArrow(d,head,col,dx,dy){const g=mk("g",{class:"arrow-move"},links);g.style.setProperty("--dx",dx+"px");g.style.setProperty("--dy",dy+"px");
+  mk("path",{d,class:"big-arrow",stroke:"#5A2E14","stroke-width":26},g);mk("path",{d:head,fill:"#5A2E14",stroke:"#5A2E14","stroke-width":10,"stroke-linejoin":"round"},g);
+  mk("path",{d,class:"big-arrow",stroke:col,"stroke-width":14},g);mk("path",{d:head,fill:col,stroke:col,"stroke-width":2,"stroke-linejoin":"round"},g);}
+bigArrow("M470 -20 C 400 -15, 350 10, 330 50","M306 40 L330 82 L352 44 Z","#E0503B",-6,8);
+bigArrow("M245 960 C 290 880, 190 790, 235 700","M208 716 L238 672 L262 722 Z","#F2A62A",0,-8);
+
+/* картки тем */
+const $=id=>document.getElementById(id);
+const dlg=$("dlg");let cur=0,mode="topic";
+function fillTopic(i){mode="topic";cur=i;const s=ST[i],sec=SECS[s[0]];
+  dlg.style.setProperty("--accent",sec.c);
+  $("dNum").textContent=i+1;$("dSec").textContent=`${sec.r}. ${sec.n}`;$("dTitle").textContent=s[1];
+  const inSec=ST.map((r,k)=>[r,k]).filter(([r])=>r[0]===s[0]).map(([,k])=>k);
+  $("dStep").textContent=`Зупинка ${i+1} з ${N} · у розділі ${inSec.indexOf(i)+1} з ${inSec.length}`;
+  $("dBody").innerHTML=`<div class="more"><h3>Головне на зупинці</h3><ul>${s[3].map(t=>`<li>${t}</li>`).join("")}</ul></div><div class="formula"><b>Запам'ятай</b>${s[4]}</div>`;
+  $("dPrev").disabled=i===0;$("dNext").disabled=i===N-1;
+  $("dPrev").textContent="← Попередня";$("dNext").textContent="Наступна →";
+}
+function fillSec(si){mode="sec";cur=si;const s=SECS[si];dlg.style.setProperty("--accent",s.c);
+  const idx=ST.map((r,i)=>[r,i]).filter(([r])=>r[0]===si).map(([,i])=>i);
+  $("dNum").textContent=s.r;$("dSec").textContent=`${s.place} · ${s.k==="alg"?"Алгебра":"Геометрія"}`;$("dTitle").textContent=s.n;
+  $("dStep").textContent=`Розділ ${si+1} з 7 · ${idx.length} ${idx.length>4?"тем":"теми"}`;
+  $("dBody").innerHTML=`<div class="more"><h3>Про що цей розділ</h3><p style="font-size:16px;line-height:1.5">${s.d}</p></div><ul class="d-list">${idx.map(i=>`<li><button type="button" data-i="${i}"><i>${i+1}</i>${ST[i][1]}</button></li>`).join("")}</ul>`;
+  $("dPrev").disabled=si===0;$("dNext").disabled=si===6;
+  $("dPrev").textContent="← Попередній розділ";$("dNext").textContent="Наступний розділ →";
+}
+const show=()=>{if(!dlg.open)dlg.showModal()};
+$("dPrev").onclick=()=>mode==="topic"?cur>0&&fillTopic(cur-1):cur>0&&fillSec(cur-1);
+$("dNext").onclick=()=>mode==="topic"?cur<N-1&&fillTopic(cur+1):cur<6&&fillSec(cur+1);
+$("dClose").onclick=()=>dlg.close();
+dlg.addEventListener("click",e=>{if(e.target===dlg)dlg.close();const b=e.target.closest(".d-list button");if(b)fillTopic(+b.dataset.i)});
+document.addEventListener("keydown",e=>{if(!dlg.open)return;if(e.key==="ArrowRight")$("dNext").click();if(e.key==="ArrowLeft")$("dPrev").click()});
+
+/* масштаб і переміщення */
+const vp=$("vp"),board=$("board");let sc=1,tx=0,ty=0;
+const apply=()=>board.style.transform=`translate(${tx}px,${ty}px) scale(${sc})`;
+function fit(){const w=vp.clientWidth,h=vp.clientHeight;sc=Math.min(w/2400,h/1580)*0.98;tx=(w-2400*sc)/2;ty=(h-1580*sc)/2+80*sc;apply()}
+function zoomAt(f,px,py){const ns=Math.max(.2,Math.min(4,sc*f));tx=px-(px-tx)*ns/sc;ty=py-(py-ty)*ns/sc;sc=ns;apply()}
+vp.addEventListener("wheel",e=>{e.preventDefault();zoomAt(e.deltaY<0?1.12:1/1.12,e.clientX,e.clientY)},{passive:false});
+const ptrs=new Map();let moved=0,pinch=null;
+vp.addEventListener("pointerdown",e=>{ptrs.set(e.pointerId,{x:e.clientX,y:e.clientY});moved=0;
+  if(ptrs.size===2){const [a,b]=[...ptrs.values()];pinch={d:Math.hypot(a.x-b.x,a.y-b.y)}}});
+vp.addEventListener("pointermove",e=>{if(!ptrs.has(e.pointerId))return;const p=ptrs.get(e.pointerId);
+  if(ptrs.size===1){const dx=e.clientX-p.x,dy=e.clientY-p.y;moved+=Math.abs(dx)+Math.abs(dy);if(moved>6){vp.classList.add("drag");try{vp.setPointerCapture(e.pointerId)}catch(_){}}tx+=dx;ty+=dy;apply()}
+  ptrs.set(e.pointerId,{x:e.clientX,y:e.clientY});
+  if(ptrs.size===2&&pinch){const [a,b]=[...ptrs.values()];const d=Math.hypot(a.x-b.x,a.y-b.y);zoomAt(d/pinch.d,(a.x+b.x)/2,(a.y+b.y)/2);pinch.d=d;moved=99}});
+const up=e=>{ptrs.delete(e.pointerId);if(ptrs.size<2)pinch=null;if(!ptrs.size)vp.classList.remove("drag")};
+vp.addEventListener("pointerup",up);vp.addEventListener("pointercancel",up);
+vp.addEventListener("click",e=>{if(moved>6)return;
+  const b=e.target.closest("li button[data-i]");if(b){fillTopic(+b.dataset.i);show();return}
+  const h=e.target.closest("h2[data-sec]");if(h){fillSec(+h.dataset.sec);show()}},true);
+vp.addEventListener("keydown",e=>{const h=e.target.closest&&e.target.closest("h2[data-sec]");if(h&&(e.key==="Enter"||e.key===" ")){e.preventDefault();fillSec(+h.dataset.sec);show()}});
+$("zin").onclick=()=>zoomAt(1.25,vp.clientWidth/2,vp.clientHeight/2);
+$("zout").onclick=()=>zoomAt(1/1.25,vp.clientWidth/2,vp.clientHeight/2);
+$("zfit").onclick=fit;
+window.addEventListener("resize",fit);fit();
+</script>
+</body>
+</html>
